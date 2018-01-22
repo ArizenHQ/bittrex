@@ -1,10 +1,13 @@
-require 'faraday'
-require 'base64'
-require 'json'
+require "rest-client"
+require "base64"
+require "json"
 
 module Bittrex
   class Client
-    HOST = 'https://bittrex.com/api/v1.1'
+
+    API_ENDPOINT = "https://bittrex.com/api/".freeze
+    API_VERSION = "v1.1/".freeze
+    HOST = (API_ENDPOINT + API_VERSION).freeze
 
     attr_reader :key, :secret
 
@@ -15,32 +18,38 @@ module Bittrex
 
     def get(path, params = {}, headers = {})
       nonce = Time.now.to_i
-      response = connection.get do |req|
-        url = "#{HOST}/#{path}"
-        req.params.merge!(params)
-        req.url(url)
 
-        if key
-          req.params[:apikey]   = key
-          req.params[:nonce]    = nonce
-          req.headers[:apisign] = signature(url, nonce)
-        end
-      end
+      params = params_with_auth(params, nonce) if key
+      uri = build_url(path, params)
 
-      JSON.parse(response.body)['result']
+      response = execute(uri, headers)
+
+      JSON.parse(response.body)["result"]
     end
 
     private
 
-    def signature(url, nonce)
-      OpenSSL::HMAC.hexdigest('sha512', secret, "#{url}?apikey=#{key}&nonce=#{nonce}")
+    def build_url(path, params)
+      uri = URI.join(HOST, path)
+      query_params = URI.encode_www_form(params)
+      uri.query = query_params
+
+      uri.to_s
     end
 
-    def connection
-      @connection ||= Faraday.new(:url => HOST) do |faraday|
-        faraday.request  :url_encoded
-        faraday.adapter  Faraday.default_adapter
-      end
+    def params_with_auth(params, nonce)
+      params.merge!({ apikey: key, nonce: nonce })
     end
+
+    def execute(uri, headers)
+      headers = headers.merge({ apisign: signature(uri) }) if key
+
+      RestClient.get(uri, headers)
+    end
+
+    def signature(uri)
+      OpenSSL::HMAC.hexdigest("sha512", secret, uri)
+    end
+
   end
 end
