@@ -30,5 +30,8 @@ module Bittrex
   def self.root
     File.expand_path('../..', __FILE__)
   end
-end
 
+  def self.logger
+    @logger ||= Logger.new(STDOUT)
+  end
+end

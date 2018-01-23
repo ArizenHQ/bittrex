@@ -19,7 +19,7 @@ module Bittrex
     def get(path, params = {}, headers = {})
       nonce = Time.now.to_i
 
-      params.merge!({ apikey: key, nonce: nonce }).compact!
+      params.merge!(apikey: key, nonce: nonce).compact!
       uri = build_url(path, params)
 
       response = execute(uri, headers)
@@ -41,7 +41,7 @@ module Bittrex
     end
 
     def execute(uri, headers)
-      headers.merge!({ apisign: signature(uri) }) if key
+      headers[:apisign] = signature(uri) if key
 
       RestClient.get(uri, headers)
     end
