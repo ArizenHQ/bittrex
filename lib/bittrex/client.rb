@@ -19,12 +19,15 @@ module Bittrex
     def get(path, params = {}, headers = {})
       nonce = Time.now.to_i
 
-      params = params_with_auth(params, nonce) if key
+      params.merge!({ apikey: key, nonce: nonce }).compact!
       uri = build_url(path, params)
 
       response = execute(uri, headers)
+      response = JSON.parse(response.body)
 
-      JSON.parse(response.body)["result"]
+      raise ::Bittrex::APIError, response["message"] unless response["success"]
+
+      response["result"]
     end
 
     private
@@ -37,12 +40,8 @@ module Bittrex
       uri.to_s
     end
 
-    def params_with_auth(params, nonce)
-      params.merge!({ apikey: key, nonce: nonce })
-    end
-
     def execute(uri, headers)
-      headers = headers.merge({ apisign: signature(uri) }) if key
+      headers.merge!({ apisign: signature(uri) }) if key
 
       RestClient.get(uri, headers)
     end

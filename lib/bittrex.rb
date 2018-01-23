@@ -1,4 +1,5 @@
 require "bittrex/version"
+require "bittrex/exceptions"
 
 module Bittrex
   autoload :Helpers,       'bittrex/helpers'
@@ -30,3 +31,4 @@ module Bittrex
     File.expand_path('../..', __FILE__)
   end
 end
+
