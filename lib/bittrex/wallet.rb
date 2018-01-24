@@ -15,12 +15,18 @@ module Bittrex
     end
 
     def self.all
-      client.get("account/getbalances").map { |data| new(data) }
+      data = client.get("account/getbalances")
+
+      return unless data
+
+      data.map { |wallet| new(wallet) }
     end
 
     def self.currency(currency)
       data = client.get("account/getbalance", currency: currency)
-      
+
+      return unless data
+
       new(data)
     end
 

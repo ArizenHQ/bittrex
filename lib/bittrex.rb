@@ -1,18 +1,19 @@
 require "bittrex/version"
 require "bittrex/exceptions"
+require "active_support/core_ext/hash"
 
 module Bittrex
-  autoload :Helpers,       'bittrex/helpers'
-  autoload :Market,        'bittrex/market'
-  autoload :Client,        'bittrex/client'
-  autoload :Configuration, 'bittrex/configuration'
-  autoload :Currency,      'bittrex/currency'
-  autoload :Deposit,       'bittrex/deposit'
-  autoload :Order,         'bittrex/order'
-  autoload :Quote,         'bittrex/quote'
-  autoload :Summary,       'bittrex/summary'
-  autoload :Wallet,        'bittrex/wallet'
-  autoload :Withdrawal,    'bittrex/withdrawal'
+  autoload :Helpers,       "bittrex/helpers"
+  autoload :Market,        "bittrex/market"
+  autoload :Client,        "bittrex/client"
+  autoload :Configuration, "bittrex/configuration"
+  autoload :Currency,      "bittrex/currency"
+  autoload :Deposit,       "bittrex/deposit"
+  autoload :Order,         "bittrex/order"
+  autoload :Quote,         "bittrex/quote"
+  autoload :Summary,       "bittrex/summary"
+  autoload :Wallet,        "bittrex/wallet"
+  autoload :Withdrawal,    "bittrex/withdrawal"
 
   def self.client
     @client ||= Client.new(configuration.auth)
@@ -28,7 +29,7 @@ module Bittrex
   end
 
   def self.root
-    File.expand_path('../..', __FILE__)
+    File.expand_path("../..", __FILE__)
   end
 
   def self.logger

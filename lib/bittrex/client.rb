@@ -25,7 +25,11 @@ module Bittrex
       response = execute(uri, headers)
       response = JSON.parse(response.body)
 
-      raise ::Bittrex::APIError, response["message"] unless response["success"]
+      unless response["success"]
+        logger.error(::Bittrex::APIError.new(response["message"]))
+
+        return
+      end
 
       response["result"]
     end
@@ -48,6 +52,10 @@ module Bittrex
 
     def signature(uri)
       OpenSSL::HMAC.hexdigest("sha512", secret, uri)
+    end
+
+    def logger
+      @logger ||= Bittrex.logger
     end
 
   end
