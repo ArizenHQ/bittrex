@@ -26,9 +26,9 @@ module Bittrex
       response = JSON.parse(response.body)
 
       unless response["success"]
-        logger.error(::Bittrex::APIError.new(response["message"]))
-
-        return
+        err = ::Bittrex::APIError.new(response["message"])
+        logger.error(err)
+        raise err
       end
 
       response["result"]
